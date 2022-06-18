@@ -1,0 +1,163 @@
+{
+  "name": "uni-issue",
+  "displayName": "uni-issue",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "publisher": "azurity",
+  "author": {
+    "name": "azurity",
+    "email": "784227504@qq.com"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "uni-issue.create",
+        "title": "create issue"
+      },
+      {
+        "command": "uni-issue.export",
+        "title": "export issues"
+      },
+      {
+        "command": "uni-issue.remove",
+        "title": "remove issue",
+        "icon": {
+          "light": "icons/light/trash.svg",
+          "dark": "icons/dark/trash.svg"
+        }
+      },
+      {
+        "command": "uni-issue.finish",
+        "title": "finish issue",
+        "icon": {
+          "light": "icons/light/square.svg",
+          "dark": "icons/dark/square.svg"
+        }
+      },
+      {
+        "command": "uni-issue.unfinish",
+        "title": "unfinish issue",
+        "icon": {
+          "light": "icons/light/square-check.svg",
+          "dark": "icons/dark/square-check.svg"
+        }
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "uni-issue.create",
+          "group": "7_modification",
+          "when": "resourceFilename != '.uni_issue.yaml' && isFileSystemResource && workbenchState != 'empty'"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "uni-issue.finish",
+          "group": "inline",
+          "when": "viewItem == 'uni-issue-item-unfinish'"
+        },
+        {
+          "command": "uni-issue.unfinish",
+          "group": "inline",
+          "when": "viewItem == 'uni-issue-item-finish'"
+        },
+        {
+          "command": "uni-issue.remove",
+          "group": "inline@1",
+          "when": "viewItem == 'uni-issue-item-finish' || viewItem == 'uni-issue-item-unfinish'"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "uni-issue",
+          "title": "issue list",
+          "icon": "icons/zoom-question.svg"
+        }
+      ]
+    },
+    "views": {
+      "uni-issue": [
+        {
+          "id": "issues",
+          "name": "issues"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "uni-issue",
+      "properties": {
+        "uniIssue.formDesc": {
+          "type": "array",
+          "default": [],
+          "description": "form desc of uni-issue",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "uniIssue.statusText": {
+          "type": "object",
+          "default": {
+            "unfinished": "unfinished",
+            "finished": "finished"
+          },
+          "properties": {
+            "unfinished": {
+              "type": "string",
+              "default": "unfinished"
+            },
+            "finished": {
+              "type": "string",
+              "default": "finished"
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.60.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "@vscode/test-electron": "^2.1.3",
+    "eslint": "^8.16.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5",
+    "yaml": "^2.1.1"
+  }
+}
