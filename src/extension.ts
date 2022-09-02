@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 				if (base == docPath.slice(0, base.length)) {
 					let selection = vscode.window.activeTextEditor.selection;
 					createIssueDialog(issueSet.get(k)!.base, k, docPath.slice(base.length + 1), [selection.start.line, selection.start.character, selection.end.line, selection.end.character]);
-					break
+					break;
 				}
 			}
 		}
@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 				"yaml": ['yaml'],
 				"excel": ['xlsx']
 			},
-		})
+		});
 		if (file === undefined) {
 			return;
 		}
@@ -107,13 +107,16 @@ export function deactivate() { }
 let uniDeco: vscode.TextEditorDecorationType;
 let uniDecoFin: vscode.TextEditorDecorationType;
 
+interface Meta {
+	base: string
+	file: string
+	region: number[]
+	status: boolean
+	time: number // unix second
+}
+
 interface Issue {
-	"$meta": {
-		base: string
-		file: string
-		region: number[]
-		status: boolean
-	}
+	"$meta": Meta
 	[x: string]: any
 }
 
@@ -170,9 +173,9 @@ async function loadYaml(uri: vscode.Uri) {
 	let data = await vscode.workspace.fs.readFile(uri);
 	let parsed = YAML.parse(Buffer.from(data).toString('utf-8'));
 	if (!(parsed instanceof Array)) {
-		return []
+		return [];
 	} else {
-		return parsed as Issue[]
+		return parsed as Issue[];
 	}
 }
 
@@ -181,28 +184,28 @@ async function storeYaml(uri: vscode.Uri, data: any[]) {
 }
 
 const specialValueExplain: any = {
-	"$now_date": () => {
-		return new Date().toLocaleDateString();
+	"$now_date": (desc: Meta) => {
+		return new Date(desc.time).toLocaleDateString();
 	},
-	"$now_datetime": () => {
-		return new Date().toLocaleString();
+	"$now_datetime": (desc: Meta) => {
+		return new Date(desc.time).toLocaleString();
 	},
-	"$region": (desc: any) => {
+	"$region": (desc: Meta) => {
 		return desc.region;
 	},
-	"$path": (desc: any) => {
+	"$path": (desc: Meta) => {
 		return desc.file;
 	},
-	"$abs_path": (desc: any) => {
+	"$abs_path": (desc: Meta) => {
 		return desc.base + "/" + desc.file;
 	},
-	"$beginPosition": (desc: any) => {
+	"$beginPosition": (desc: Meta) => {
 		return `${desc.file}:${desc.region[0] + 1}:${desc.region[1] + 1}`;
 	},
-	"$endPosition": (desc: any) => {
+	"$endPosition": (desc: Meta) => {
 		return `${desc.file}:${desc.region[2] + 1}:${desc.region[3] + 1}`;
 	},
-	"$status": (desc: any) => {
+	"$status": (desc: Meta) => {
 		const text: any = vscode.workspace.getConfiguration("uniIssue").get("statusText");
 		if (desc.status) {
 			return text.finished;
@@ -230,12 +233,13 @@ function createIssueDialog(base: vscode.Uri, key: string, file: string, region: 
 	`;
 	panel.webview.onDidReceiveMessage(async (data) => {
 		panel.dispose();
-		const desc = {
+		const desc: Meta = {
 			base: base.toString(),
 			file: file,
 			region: region,
 			status: false,
-		}
+			time: Date.now(),
+		};
 		data["$meta"] = desc;
 		issueSet.get(key)!.issues.push(data);
 		await storeYaml(vscode.Uri.parse(key), issueSet.get(key)!.issues);
@@ -264,7 +268,7 @@ function refreshHighlight() {
 				}
 				vscode.window.activeTextEditor.setDecorations(uniDeco, decos);
 				vscode.window.activeTextEditor.setDecorations(uniDecoFin, decosFin);
-				break
+				break;
 			}
 		}
 	}
@@ -371,7 +375,7 @@ class HoverProvider implements vscode.HoverProvider {
 						if (range.contains(position)) {
 							return new vscode.Hover(this.generateHoverInfo(item), range);
 						}
-						return
+						return;
 					}
 				}
 			}
@@ -381,7 +385,7 @@ class HoverProvider implements vscode.HoverProvider {
 	private generateHoverInfo(item: Issue) {
 		const desc: any = vscode.workspace.getConfiguration("uniIssue").get("formDesc");
 		return desc.map((it: any) => {
-			if (it.detail) {
+			if (it.hidden) {
 				return "";
 			}
 			let value = item[it.name] ?? '';

@@ -21,14 +21,14 @@ uni-issue 适用于无git仓库管理下的本地代码审计
             // text, select, multiline
             // $now_date, $now_datetime, $region, $path, $abs_path, $beginPosition, $endPosition, $status
             
-            "detail": false,
-            // if true, will not show in hover hint.
+            "hidden": false,
+            // [optional] if true, will not show in hover hint.
 
             "default": "xxx",
             // [optional] only for text, set default value.
 
             "options": ["a", "b", "c"],
-            // only for select, provide options.
+            // [optional] only for select, provide options.
         },
         ...
     ],

@@ -2,7 +2,7 @@
   "name": "uni-issue",
   "displayName": "uni-issue",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.60.0"
   },
@@ -110,22 +110,56 @@
           "description": "form desc of uni-issue",
           "items": {
             "type": "object",
+            "required": ["name", "type"],
             "properties": {
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "name of this field"
               },
               "type": {
-                "type": "string"
+                "type": "string",
+                "description": "type of this field",
+                "enum": [
+                  "text",
+                  "select",
+                  "multiline",
+                  "$now_date",
+                  "$now_datetime",
+                  "$region",
+                  "$path",
+                  "$abs_path",
+                  "$beginPosition",
+                  "$endPosition",
+                  "$status"
+                ]
+              },
+              "hidden": {
+                "type": "boolean",
+                "description": "should hidden in hover hint",
+                "default": false
+              },
+              "default": {
+                "type": "string",
+                "description": "default value"
+              },
+              "options": {
+                "type": "array",
+                "description": "options of select",
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
         },
         "uniIssue.statusText": {
           "type": "object",
+          "description": "custom status text",
           "default": {
             "unfinished": "unfinished",
             "finished": "finished"
           },
+          "required": ["unfinished", "finished"],
           "properties": {
             "unfinished": {
               "type": "string",
